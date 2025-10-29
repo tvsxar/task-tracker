@@ -17,7 +17,7 @@ function TaskProvider({children}) {
         try {
             setLoading(true);
             const { data } = await api.get('/tasks');
-            setTasks(data);
+            setTasks(data.tasks);
             setLoading(false);
         } catch (err) {
             setError(err.message);
@@ -25,10 +25,15 @@ function TaskProvider({children}) {
         }
     }
 
-    async function addTask(taskData) {
+    async function addTask() {
+        const taskData = {
+            text: inputValue,
+            completed: false
+        }
+        
         try {
             const { data } = await api.post('/tasks', taskData);
-            setTasks(prevTasks => [data, ...prevTasks]);
+            setTasks(prevTasks => [data.task, ...prevTasks]);
         } catch (err) {
             setError(err.message);
             console.error('Error adding task:', err);
@@ -37,7 +42,7 @@ function TaskProvider({children}) {
 
     async function deleteTask(taskId) {
         try {
-            const { data } = await api.delete('/tasks/' + taskId);
+            await api.delete('/tasks/' + taskId);
             setTasks(prevTasks => prevTasks.filter(task => task._id != taskId));
         } catch (err) {
             setError(err.message);
@@ -49,7 +54,7 @@ function TaskProvider({children}) {
         try {
             const { data } = await api.put('/tasks/' + taskId, updatedData);
             setTasks(prevTasks => prevTasks.map(task => {
-                return task._id === taskId ? data : task;
+                return task._id === taskId ? data.task : task;
             }))
         } catch (err) {
             setError(err.message);
