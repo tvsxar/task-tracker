@@ -32,6 +32,10 @@ function Task({ task }) {
         setEditedText(task.text);
     }
 
+    function handleComplete() {
+        updateTask(task._id, { text: task.text, completed: !task.completed });
+    }
+
     return (
         <li className="rounded-md border border-gray-200 p-3 transition duration-300 hover:shadow-sm">
             {isEditing ? (
@@ -61,17 +65,27 @@ function Task({ task }) {
             ) : (
                 <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                        <button className="shrink-0 cursor-pointer bg-black rounded-md p-1">
-                            <img 
+                        <button onClick={handleComplete}
+                        className={`shrink-0 cursor-pointer border border-gray-300 rounded-md p-1 
+                        ${task.completed ? 'bg-black' : 'bg-white hover:bg-gray-100'}`}>
+                            {task.completed ? (
+                                <img 
                             src={doneIcon} alt="doneIcon"
                             className="w-4 h-4" />
+                            ) : (
+                                <div className="w-4 h-4"></div>
+                            )}
                         </button>
 
                         <div className="min-w-0">
-                            <p>{task.text}</p>
+                            {task.completed ? (
+                                <p className='text-gray-600 line-through'>{task.text}</p>
+                            ) : (
+                                <p>{task.text}</p>
+                            )}
 
                             <span 
-                            className="text-xs text-gray-400">Created: {task.createdAt}</span>
+                            className="text-xs text-gray-400">Created: {new Date(task.createdAt).toLocaleString()}</span>
                         </div>
                     </div>
 
