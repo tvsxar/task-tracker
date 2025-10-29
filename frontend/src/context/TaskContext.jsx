@@ -9,12 +9,61 @@ function TaskProvider({children}) {
     const [error, setError] = useState(null);
     const [inputValue, setInputValue] = useState('');
 
+    useEffect(() => {
+        getTasks();
+    }, []);
+
+    async function getTasks() {
+        try {
+            setLoading(true);
+            const { data } = await api.get('/tasks');
+            setTasks(data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            console.error('Error fetching tasks:', err);
+        }
+    }
+
+    async function addTask(taskData) {
+        try {
+            const { data } = await api.post('/tasks', taskData);
+            setTasks(prevTasks => [data, ...prevTasks]);
+        } catch (err) {
+            setError(err.message);
+            console.error('Error adding task:', err);
+        }
+    }
+
+    async function deleteTask(taskId) {
+        try {
+            const { data } = await api.delete('/tasks/' + taskId);
+            setTasks(prevTasks => prevTasks.filter(task => task._id != taskId));
+        } catch (err) {
+            setError(err.message);
+            console.error('Error deleting task:', err);
+        }
+    }
+
+    async function updateTask(taskId, updatedData) {
+        try {
+            const { data } = await api.put('/tasks/' + taskId, updatedData);
+            setTasks(prevTasks => prevTasks.map(task => {
+                return task._id === taskId ? data : task;
+            }))
+        } catch (err) {
+            setError(err.message);
+            console.error('Error updating task:', err);
+        }
+    }
+
     return (
         <TaskContext.Provider value={{
             tasks, setTasks,
             loading, setLoading,
             error, setError,
-            inputValue, setInputValue
+            inputValue, setInputValue,
+            addTask, deleteTask, updateTask
         }}>
             {children}
         </TaskContext.Provider>
