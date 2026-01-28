@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: task-tracker-backend
+    ports:
+      - "3434:3434"
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:3434
+    container_name: task-tracker-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: always
